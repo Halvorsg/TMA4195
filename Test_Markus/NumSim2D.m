@@ -1,20 +1,19 @@
 function NumSim2D()
+addpath 'C:\Users\halvo\Documents\MATLAB\TMA4195\Project\Grids'
+addpath 'C:\Users\halvo\Documents\MATLAB\TMA4195\Project\Oppgave1'
 N = 10;
 M = 10;
 maxit = 50;
 T1 = 300 ; T2 = -10 ; 
 P1 = 2*T1 ; P2 = 100;
-BCP = @(x,y) -x;
+BCP = @(x,y) -(x+0.1);
+
 %https://www.engineeringtoolbox.com/specific-heat-capacity-gases-d_159.html
 %https://en.wikipedia.org/wiki/Enthalpy_of_vaporization
 cv = 1.46*10^-3; 
-
-kappa = 0.024; k = 1; h_lv = 2.257; rho_v = 4.85*10^-3;
+kappa = 2.4; k = 50; h_lv = 2.257; rho_v = 4.85*10^-3;
 sigma = rho_v*cv/kappa;
 C = kappa/(k*h_lv);
-% cp = 2.08*10^-3; kappa = 0.025; k = 0.01; h_lv = 2.257;
-% sigma = cp/kappa;
-% C = kappa/(k*h_lv);
 
 Psol = zeros(M*N,1);
 for i = 1:maxit
@@ -24,6 +23,7 @@ for i = 1:maxit
     [px,py,BC] = getGradientALL(P,x,N,M);               % Finding the gradient of P
     ux = @(x,y) -k*px(x,y); uy = @(x,y) -k*py(x,y);     % Darcy approx
     BCT = @(x,y) 1/C*BC(x,y);                           % Interface condition for T
+    
     [ T,~,x] = temperature(N,ux,uy,BCT, T1 , T2, sigma);       % Solving for T
     [~,~,BC] = getGradientALL(T,x,N,M);                 % Finding gradient of T
     BCP = @(x,y) C*BC(x,y);                             % Interface condition for P

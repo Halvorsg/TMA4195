@@ -1,14 +1,14 @@
-function [ u_sol,Neumann_bottom,Neumann_points] = temperature(N,u1,u2,gbottom, T1 , T2,sigma)
-addpath Grids
-addpath Oppgave1
+function [ u_sol,Neumann_bottom,Neumann_points] = temperature_vapor(N,u1,u2, gLeft, T_interface , T0, sigma)
+% addpath Grids
+% addpath Oppgave1
 %% Get triangle
 [p,tri,edges] = getPlate(N);
+% TR = triangulation(tri, p);
+% triplot(TR)
+% hold on
 %% Functions
-f = @(x,y) 4*(x.^2 - 1).*(y.^2 - 1);                  % Right hand side
-gtop = @(x,y)    2*(x.^2-1); % + gtop                % Neumann top
-gLeft = @(x,y)   2*(y.^2-1); % - gLeft
-gRight = @(x,y)  2*(y.^2-1); % + gRight
-gbottom = @(x,y) 2*(x.^2-1); % - gbottom;
+gtop = @(x,y) 0;
+f = @(x,y) 0;                   % Right hand side
 fcn = @plus;
 %% Pre-allocating
 A = spalloc(length(p),length(p),10*length(p));
@@ -24,28 +24,17 @@ Neumann_points = p(Neumann_bottom,1);
 %% Neumane edges
 cnt = 0;
 for i = 1:length(edges)
-    p1 = edges1(i,:); p2 = edges2(i,:);
-    if p1(1) == -1 && p2(1) == -1
-            Fn = quadratureLine2D(edges1(i,:),edges2(i,:),3,gLeft);          % Line integral for Neumann boundary
-            F(edges(i,:)) = F(edges(i,:)) + Fn;                             % Adding to load vector
-            Neumann_edges(i,:) = edges(i,:);     
-    elseif p1(1) == 1 && p2(1) == 1
-            Fn = quadratureLine2D(edges1(i,:),edges2(i,:),3,gRight);          % Line integral for Neumann boundary
-            F(edges(i,:)) = F(edges(i,:)) + Fn;                             % Adding to load vector
-            Neumann_edges(i,:) = edges(i,:);     
-            
-    elseif p1(2) == -1 && p2(2) == -1
-            cnt = cnt+1;
-            Fn = quadratureLine2D(edges1(i,:),edges2(i,:),3,gbottom);       % Line integral for Neumann boundary
-            F(edges(i,:)) = F(edges(i,:)) + Fn;                             % Adding to load vector
-            Neumann_edges(i,:) = edges(i,:);                                % Adding edge(i) to list of Neumann edges
-            
-    elseif p1(2) == 1 && p2(2) == 1
+    p1 = edges1(i,:); p2 = edges2(i,:);            
+    if p1(2) == 1 && p2(2) == 1
             Fn = quadratureLine2D(edges1(i,:),edges2(i,:),3,gtop);          % Line integral for Neumann boundary
             F(edges(i,:)) = F(edges(i,:)) + Fn;                             % Adding to load vector
             Neumann_edges(i,:) = edges(i,:);                                % Adding edge(i) to list of Neumann edges
-
-
+%             plot([edges1(i,1),edges2(i,1)],[edges1(i,2),edges2(i,2)],'g')
+    elseif p1(1) == -1 && p2(1) == -1
+            Fn = quadratureLine2D(edges1(i,:),edges2(i,:),3,gLeft);          % Line integral for Neumann boundary
+            F(edges(i,:)) = F(edges(i,:)) + Fn;                             % Adding to load vector
+            Neumann_edges(i,:) = edges(i,:);      
+%             plot([edges1(i,1),edges2(i,1)],[edges1(i,2),edges2(i,2)],'g')
     end
 end
 
@@ -93,20 +82,21 @@ inner_vertices = unique(y);
 inner_vertices = inner_vertices(2:end);
 
 %% Lifting and solving
-% edges_hot = edges(p(edges) == -1);
-% % edges_cold = edges(p(edges) == 1);
-% % 
-% gr = zeros(length(p),1);
-% gr(edges_hot) = T1; % Kelvin
-% % gr(edges_cold) = T2; % Kelvin
-% 
-% G = F- (A+M)*gr;
-% A = A(inner_vertices,inner_vertices);
-% M = M(inner_vertices,inner_vertices);
-% F = G(inner_vertices);
-u = pinv(full((A+M)))*F;
+edges_interface = unique(edges(p(edges,2) == -1));
+edges_right = unique(edges(p(edges,1) == 1));
 
-u_sol(inner_vertices) = u+1;
+gr = zeros(length(p),1);
+gr(edges_right) = T0; % Kelvin
+gr(edges_interface) = T_interface(p(edges_interface));
+
+G = F- (A+M)*gr;
+A = A(inner_vertices,inner_vertices);
+M = M(inner_vertices,inner_vertices);
+F = G(inner_vertices);
+u = (A+M)\F;
+
+u_sol(inner_vertices) = u;
+u_sol = u_sol+gr;
 
 %% Plotting
 % figure

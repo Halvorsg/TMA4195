@@ -1,4 +1,4 @@
-function [ u_sol,Neumann_bottom,Neumann_points] = temperature(N,u1,u2,gbottom, T1 , T2,sigma)
+function [ u_sol,Neumann_bottom,Neumann_points] = temperature_pinv(N,u1,u2,gbottom, T1 , T2,sigma)
 addpath Grids
 addpath Oppgave1
 %% Get triangle
@@ -104,15 +104,15 @@ inner_vertices = inner_vertices(2:end);
 % A = A(inner_vertices,inner_vertices);
 % M = M(inner_vertices,inner_vertices);
 % F = G(inner_vertices);
-u = pinv(full((A+M)))*F;
+u = pinv(full(A+M))*F;
 
-u_sol(inner_vertices) = u+1;
-
+u_sol= u;
+u_sol = u+sign(u(end))*u(end)+100;
 %% Plotting
-% figure
-% trimesh(tri,p(:,1),p(:,2),u_sol)
-% s = sprintf('Approximate solution with N = %i', N);
-% xlabel('x')
-% ylabel('y')
-% title(s)
+figure
+trimesh(tri,p(:,1),p(:,2),u_sol)
+s = sprintf('Approximate solution with N = %i', N);
+xlabel('x')
+ylabel('y')
+title(s)
 end

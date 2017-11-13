@@ -1,14 +1,14 @@
-function [ u_sol,Neumann_bottom,Neumann_points] = temperature(N,u1,u2,gbottom, T1 , T2,sigma)
+function [ u_sol,Neumann_bottom,Neumann_points] = temperature_test(N,u1,u2,gbottom, T1 , T2,sigma)
 addpath Grids
 addpath Oppgave1
 %% Get triangle
 [p,tri,edges] = getPlate(N);
 %% Functions
 f = @(x,y) 4*(x.^2 - 1).*(y.^2 - 1);                  % Right hand side
-gtop = @(x,y)    2*(x.^2-1); % + gtop                % Neumann top
-gLeft = @(x,y)   2*(y.^2-1); % - gLeft
-gRight = @(x,y)  2*(y.^2-1); % + gRight
-gbottom = @(x,y) 2*(x.^2-1); % - gbottom;
+gtop = @(x,y)   2*(x.^2-1);                % Neumann top
+gLeft = @(x,y)  2*(y.^2-1);
+gRight = @(x,y) 2*(y.^2-1);
+gbottom = @(x,y) 2*(x.^2-1);
 fcn = @plus;
 %% Pre-allocating
 A = spalloc(length(p),length(p),10*length(p));
@@ -93,26 +93,26 @@ inner_vertices = unique(y);
 inner_vertices = inner_vertices(2:end);
 
 %% Lifting and solving
-% edges_hot = edges(p(edges) == -1);
-% % edges_cold = edges(p(edges) == 1);
-% % 
-% gr = zeros(length(p),1);
-% gr(edges_hot) = T1; % Kelvin
-% % gr(edges_cold) = T2; % Kelvin
+edges_hot = edges(p(edges) == -1);
+% edges_cold = edges(p(edges) == 1);
 % 
-% G = F- (A+M)*gr;
-% A = A(inner_vertices,inner_vertices);
-% M = M(inner_vertices,inner_vertices);
-% F = G(inner_vertices);
-u = pinv(full((A+M)))*F;
+gr = zeros(length(p),1);
+gr(edges_hot) = T1; % Kelvin
+% gr(edges_cold) = T2; % Kelvin
 
-u_sol(inner_vertices) = u+1;
+G = F- (A+M)*gr;
+A = A(inner_vertices,inner_vertices);
+M = M(inner_vertices,inner_vertices);
+F = G(inner_vertices);
+u = (A+M)\F;
+
+u_sol(inner_vertices) = u;
 
 %% Plotting
-% figure
-% trimesh(tri,p(:,1),p(:,2),u_sol)
-% s = sprintf('Approximate solution with N = %i', N);
-% xlabel('x')
-% ylabel('y')
-% title(s)
+figure
+trimesh(tri,p(:,1),p(:,2),u_sol)
+s = sprintf('Approximate solution with N = %i', N);
+xlabel('x')
+ylabel('y')
+title(s)
 end

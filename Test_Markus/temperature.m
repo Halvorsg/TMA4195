@@ -4,11 +4,10 @@ addpath Oppgave1
 %% Get triangle
 [p,tri,edges] = getPlate(N);
 %% Functions
-f = @(x,y) 4*(x.^2 - 1).*(y.^2 - 1);                  % Right hand side
-gtop = @(x,y)    2*(x.^2-1); +                % Neumann top
-gLeft = @(x,y)   2*(y.^2-1);
-gRight = @(x,y)  2*(y.^2-1);
-gbottom = @(x,y) 2*(x.^2-1);
+f = @(x,y) 0;                  % Right hand side
+gtop = @(x,y)    0; % + gtop                % Neumann top
+gLeft = @(x,y)   10; % - gLeft
+gRight = @(x,y)  -10; % + gRight
 fcn = @plus;
 %% Pre-allocating
 A = spalloc(length(p),length(p),10*length(p));
@@ -86,33 +85,33 @@ for i = 1:length(tri)
     F(tri(i,:)) = F(tri(i,:)) + Fk;
 end
 %% Adding and removing boundary
-u_sol = zeros(size(p(:,1)));
-M = sigma*M;
-y = (~ismember(tri,edges)).*tri;
-inner_vertices = unique(y);
-inner_vertices = inner_vertices(2:end);
+% u_sol = zeros(size(p(:,1)));
+% M = sigma*M;
+% y = (~ismember(tri,edges)).*tri;
+% inner_vertices = unique(y);
+% inner_vertices = inner_vertices(2:end);
 
 %% Lifting and solving
-edges_hot = edges(p(edges) == -1);
-% edges_cold = edges(p(edges) == 1);
+% edges_hot = edges(p(edges) == -1);
+% % edges_cold = edges(p(edges) == 1);
+% % 
+% gr = zeros(length(p),1);
+% gr(edges_hot) = T1; % Kelvin
+% % gr(edges_cold) = T2; % Kelvin
 % 
-gr = zeros(length(p),1);
-gr(edges_hot) = T1; % Kelvin
-% gr(edges_cold) = T2; % Kelvin
+% G = F- (A+M)*gr;
+% A = A(inner_vertices,inner_vertices);
+% M = M(inner_vertices,inner_vertices);
+% F = G(inner_vertices);
+u = pinv(full(A+M))*F;
 
-G = F- (A+M)*gr;
-A = A(inner_vertices,inner_vertices);
-M = M(inner_vertices,inner_vertices);
-F = G(inner_vertices);
-u = (A+M)\F;
-
-u_sol(inner_vertices) = u+1;
+u_sol= u;
 
 %% Plotting
-figure
-trimesh(tri,p(:,1),p(:,2),u_sol)
-s = sprintf('Approximate solution with N = %i', N);
-xlabel('x')
-ylabel('y')
-title(s)
+% figure
+% trimesh(tri,p(:,1),p(:,2),u_sol)
+% s = sprintf('Approximate solution with N = %i', N);
+% xlabel('x')
+% ylabel('y')
+% title(s)
 end
