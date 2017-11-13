@@ -1,17 +1,17 @@
 function NumSim2D()
-addpath 'C:\Users\halvo\Documents\MATLAB\TMA4195\Project\Grids'
-addpath 'C:\Users\halvo\Documents\MATLAB\TMA4195\Project\Oppgave1'
-N = 10;
-M = 10;
-maxit = 50;
+addpath ('..\Grids');
+addpath ('..\Oppgave1');
+N = 30;
+M = 30;
+maxit = 10;
 T1 = 300 ; T2 = -10 ; 
 P1 = 2*T1 ; P2 = 100;
-BCP = @(x,y) -(x+0.1);
+BCP = @(x,y) -1*(x)/1.0634;
 
 %https://www.engineeringtoolbox.com/specific-heat-capacity-gases-d_159.html
 %https://en.wikipedia.org/wiki/Enthalpy_of_vaporization
 cv = 1.46*10^-3; 
-kappa = 2.4; k = 50; h_lv = 2.257; rho_v = 4.85*10^-3;
+kappa = 2.4; k = 1; h_lv = 2.257; rho_v = 4.85*10^-3;
 sigma = rho_v*cv/kappa;
 C = kappa/(k*h_lv);
 
@@ -28,7 +28,7 @@ for i = 1:maxit
     [~,~,BC] = getGradientALL(T,x,N,M);                 % Finding gradient of T
     BCP = @(x,y) C*BC(x,y);                             % Interface condition for P
     disp(max(max(abs(Psol-P))));
-    if (max(max(abs(Psol-P)))< 0.01)
+    if (max(max(abs(Psol-P)))< 0.0001)
         disp(i)
         disp(max(max(abs(Psol-P))));
         fprintf('Converged')
@@ -40,10 +40,10 @@ for i = 1:maxit
     surf(reshape(T,N,M)')
     title('Temperature')
     drawnow
-    figure(2)
-    surf(reshape(P,N,M)')
-    title('Pressure')
-    drawnow
+    %figure(2)
+    %surf(reshape(P,N,M)')
+    %title('Pressure')
+    %drawnow
 end
 [X,Y] = meshgrid(linspace(-1,1,round(N))); 
 quiver(ux(X,Y),uy(X,Y));

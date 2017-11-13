@@ -1,6 +1,6 @@
 function NumSim2D_part2()
-addpath 'C:\Users\halvo\Documents\MATLAB\TMA4195\Project\Grids'
-addpath 'C:\Users\halvo\Documents\MATLAB\TMA4195\Project\Oppgave1'
+addpath ('..\Grids');
+addpath ('..\Oppgave1');
 N = 10;
 M = 10;
 
@@ -9,15 +9,15 @@ Cv_v = 1.46*10^-3; Kappa_v = 2.4; kv = 50; rho_v = 4.85*10^-3; sigma_v = rho_v*C
 %% Liquid constans
 Cv_l = 4.19*10^-3; Kappa_l = 62; kl = 1; rho_l = 1000; sigma_l = rho_l*Cv_l/Kappa_l;
 %% General constants
-Qin = 100; T0 = 100;  h_lv = 1; 
+Qin = 1; T0 = 0;  h_lv = 1; 
 C_v = 1/(rho_v*kv*h_lv); C_l = 1/(rho_l*kl*h_lv);
 
-maxit = 50;
+maxit = 2;
 BCPv =  @(x,y) -x;
 BCPl =  @(x,y) -x;
 ulx =   @(x,y) -x;
 uly =   @(x,y) -x;
-T_interface = @(x,y) -100*x+200;
+T_interface = @(x,y) -1*x+2;
 
 
 
@@ -30,6 +30,7 @@ for i = 1:maxit
     [Tv,~,x] = temperature_vapor(N,uvx,uvy, @(x,y) Qin, T_interface , T0, sigma_v);
     [~,~,dTv_dy] = getGradientALL(Tv,x,N,M);        % Finding the gradient of P
     Tv = reshape(Tv,M,N)';
+
     T_interface = @(x,y) interp1(linspace(-1,1,10),Tv(end,:),x);
 
     [Tl,~,x] = temperature_liquid(N,ulx,uly, @(x,y) Qin, T_interface , T0, sigma_l);

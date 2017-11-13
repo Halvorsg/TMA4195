@@ -6,14 +6,14 @@ addpath Oppgave1
 %% Functions
 f = @(x,y) 0;                  % Right hand side
 gtop = @(x,y)    0; % + gtop                % Neumann top
-gLeft = @(x,y)   10; % - gLeft
-gRight = @(x,y)  -10; % + gRight
+gLeft = @(x,y)   1; % - gLeft
+gRight = @(x,y)  -1; % + gRight
 fcn = @plus;
 %% Pre-allocating
 A = spalloc(length(p),length(p),10*length(p));
 M = spalloc(length(p),length(p),10*length(p));
 F = zeros(length(p),1);
-% Taking care of Neumann boundary
+% Taking care of Neumann boundar10
 p(abs(p)<100*eps) = 0;      % Setting all values of p approx 0 to 0
 edges1 = p(edges(:,1),:);   % Position of first node in edge pair
 edges2 = p(edges(:,2),:);   % Position of second node in edge pair
@@ -85,11 +85,24 @@ for i = 1:length(tri)
     F(tri(i,:)) = F(tri(i,:)) + Fk;
 end
 %% Adding and removing boundary
-% u_sol = zeros(size(p(:,1)));
+ u_sol = zeros(size(p(:,1)));
 % M = sigma*M;
 % y = (~ismember(tri,edges)).*tri;
 % inner_vertices = unique(y);
-% inner_vertices = inner_vertices(2:end);
+%{
+inner_vertices=zeros(length(p),1);
+step=1;
+for it=1:length(p)
+if p(it,2)<0.98
+
+
+    inner_vertices(step)=it;
+step=step+1;
+end
+end
+inner_vertices = inner_vertices(1:step-1);
+%}
+ %inner_vertices = inner_vertices(2:end);
 
 %% Lifting and solving
 % edges_hot = edges(p(edges) == -1);
@@ -102,7 +115,7 @@ end
 % G = F- (A+M)*gr;
 % A = A(inner_vertices,inner_vertices);
 % M = M(inner_vertices,inner_vertices);
-% F = G(inner_vertices);
+% F = F(inner_vertices);
 u = pinv(full(A+M))*F;
 
 u_sol= u;
