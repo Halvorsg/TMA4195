@@ -48,17 +48,16 @@ for i = 1:maxit
 end
 n = linspace(-1,1,round(N));
 [X,Y] = meshgrid(n); 
-h = figure(3);
+h = figure;
 quiver(X,Y,ux(X,Y),uy(X,Y));
 axis tight
 y = zeros(1,N);
 hold on
-plot(n,y-1,'black','linewidth',2)
-plot(n,y+1,'black','linewidth',2)
-plot(y-1,n,'red','linewidth',2)
-plot(y+1,n,'blue','linewidth',2)
-title('Velocity field')
-saveTightFigure(h,'VelocityField')
+plot(n,y-1,'black')
+plot(n,y+1,'black')
+plot(y-1,n,'red')
+plot(y+1,n,'blue')
+saveTightFigure(h,'deleteMe')
 
 
 
