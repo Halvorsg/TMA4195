@@ -1,7 +1,7 @@
 function NumSim2D()
 N = 10;
 M = 10;
-maxit = 50;
+maxit = 10;
 T1 = 300 ; T2 = -10 ; 
 P1 = 2*T1 ; P2 = 100;
 BCP = @(x,y) -x;
